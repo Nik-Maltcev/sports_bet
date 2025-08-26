@@ -88,16 +88,22 @@ async def main():
     """Основная функция для Railway"""
     BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
     CHANNEL_ID = os.getenv('TELEGRAM_CHANNEL_ID')
+    PERPLEXITY_KEY = os.getenv('PERPLEXITY_API_KEY')
     
     if not BOT_TOKEN or not CHANNEL_ID:
         logger.error("❌ Не установлены переменные окружения!")
         logger.error("TELEGRAM_BOT_TOKEN и TELEGRAM_CHANNEL_ID обязательны")
         return
     
+    if not PERPLEXITY_KEY:
+        logger.warning("⚠️ PERPLEXITY_API_KEY не установлен")
+        logger.warning("Бот будет использовать моковые данные")
+    
     logger.info("🚀 Запуск Sports Prediction Bot для Railway...")
+    logger.info(f"🔬 Perplexity API: {'✅ Активен' if PERPLEXITY_KEY else '❌ Отключен'}")
     
     # Создаем экземпляр бота
-    bot = HybridSportsBot(BOT_TOKEN, CHANNEL_ID)
+    bot = HybridSportsBot(BOT_TOKEN, CHANNEL_ID, PERPLEXITY_KEY)
     
     # Создаем веб-сервер
     web_server = WebServer(bot)

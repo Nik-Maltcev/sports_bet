@@ -1,7 +1,7 @@
 {
   "name": "Sports Prediction Bot",
-  "description": "Telegram bot that sends professional sports predictions to a channel at scheduled times",
-  "keywords": ["telegram", "bot", "sports", "predictions", "betting", "analysis"],
+  "description": "Telegram bot that sends professional sports predictions to a channel at scheduled times using Perplexity AI for real-time data",
+  "keywords": ["telegram", "bot", "sports", "predictions", "betting", "analysis", "perplexity", "ai"],
   "env": {
     "TELEGRAM_BOT_TOKEN": {
       "description": "Your Telegram Bot Token from @BotFather",
@@ -10,6 +10,10 @@
     "TELEGRAM_CHANNEL_ID": {
       "description": "Your Telegram Channel ID (e.g., @your_channel or -1001234567890)",
       "required": true
+    },
+    "PERPLEXITY_API_KEY": {
+      "description": "Your Perplexity API Key from https://perplexity.ai/account/api (optional - will use mock data if not provided)",
+      "required": false
     }
   },
   "formation": {

@@ -8,7 +8,8 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 import config
 from sports_bot import SportsAnalyzer
-from advanced_analyzer import AdvancedSportsAnalyzer
+from perplexity_analyzer import EnhancedSportsAnalyzer
+import random
 
 # Настройка логирования
 logging.basicConfig(
@@ -22,13 +23,23 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 class HybridSportsBot:
-    """Гибридный бот, использующий как базовый, так и продвинутый анализатор"""
+    """Гибридный бот, использующий Perplexity API для реальных данных"""
     
-    def __init__(self, token: str, channel_id: str):
+    def __init__(self, token: str, channel_id: str, perplexity_key: str = None):
         self.token = token
         self.channel_id = channel_id
         self.basic_analyzer = SportsAnalyzer()
-        self.advanced_analyzer = AdvancedSportsAnalyzer()
+        
+        # Инициализируем Perplexity анализатор если есть ключ
+        if perplexity_key:
+            self.perplexity_analyzer = EnhancedSportsAnalyzer(perplexity_key)
+            self.use_perplexity = True
+            logger.info("🔬 Perplexity API подключен для получения реальных данных")
+        else:
+            self.perplexity_analyzer = None
+            self.use_perplexity = False
+            logger.warning("⚠️ Perplexity API не настроен, используются моковые данные")
+        
         self.bot = Bot(token=token)
         self.scheduler = AsyncIOScheduler(timezone=pytz.timezone('Europe/Moscow'))
     
@@ -107,37 +118,41 @@ class HybridSportsBot:
         return message
     
     async def generate_hybrid_predictions(self, count: int = 3) -> list:
-        """Генерирует прогнозы, комбинируя базовый и продвинутый анализаторы"""
+        """Генерирует прогнозы, используя Perplexity API для реальных данных"""
         predictions = []
         
-        # Пытаемся получить улучшенные прогнозы
-        sports = ["football", "basketball", "tennis"]
-        
-        for sport in sports[:count]:
-            try:
-                enhanced_pred = await self.advanced_analyzer.generate_enhanced_prediction(sport)
-                if enhanced_pred:
-                    # Конвертируем в формат SportsPrediction
-                    from sports_bot import SportsPrediction
-                    pred = SportsPrediction(
-                        sport=enhanced_pred["sport"],
-                        league=enhanced_pred["league"], 
-                        match=enhanced_pred["match"],
-                        prediction=enhanced_pred["prediction"],
-                        odds=enhanced_pred["odds"],
-                        confidence=enhanced_pred["confidence"],
-                        analysis=enhanced_pred["analysis"],
-                        key_factors=enhanced_pred["key_factors"]
-                    )
-                    predictions.append(pred)
-                    continue
-            except Exception as e:
-                logger.warning(f"Не удалось получить улучшенный прогноз для {sport}: {e}")
+        if self.use_perplexity and self.perplexity_analyzer:
+            # Получаем реальные прогнозы через Perplexity
+            sports = ["football", "basketball", "tennis"]
+            
+            for sport in sports[:count]:
+                try:
+                    real_pred = await self.perplexity_analyzer.generate_real_prediction(sport)
+                    if real_pred:
+                        # Конвертируем в формат SportsPrediction
+                        from sports_bot import SportsPrediction
+                        pred = SportsPrediction(
+                            sport=real_pred["sport"],
+                            league=real_pred["league"], 
+                            match=real_pred["match"],
+                            prediction=real_pred["prediction"],
+                            odds=real_pred["odds"],
+                            confidence=real_pred["confidence"],
+                            analysis=real_pred["analysis"],
+                            key_factors=real_pred["key_factors"]
+                        )
+                        predictions.append(pred)
+                        logger.info(f"✅ Получен реальный прогноз для {sport} через Perplexity")
+                        continue
+                except Exception as e:
+                    logger.warning(f"⚠️ Не удалось получить реальный прогноз для {sport}: {e}")
         
         # Дополняем базовыми прогнозами если нужно
         if len(predictions) < count:
-            basic_predictions = self.basic_analyzer.generate_daily_predictions(count - len(predictions))
+            needed = count - len(predictions)
+            basic_predictions = self.basic_analyzer.generate_daily_predictions(needed)
             predictions.extend(basic_predictions)
+            logger.info(f"📊 Добавлено {needed} базовых прогнозов")
         
         return predictions[:count]
     
@@ -203,12 +218,15 @@ class HybridSportsBot:
     
     async def cleanup(self):
         """Очистка ресурсов"""
-        await self.advanced_analyzer.close()
+        if self.perplexity_analyzer:
+            await self.perplexity_analyzer.close()
+            logger.info("🔄 Perplexity соединения закрыты")
 
 async def main():
     """Основная функция"""
     BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
     CHANNEL_ID = os.getenv('TELEGRAM_CHANNEL_ID')
+    PERPLEXITY_KEY = os.getenv('PERPLEXITY_API_KEY')
     
     if not BOT_TOKEN or not CHANNEL_ID:
         logger.error("❌ Не установлены переменные окружения!")
@@ -216,10 +234,15 @@ async def main():
         logger.error("В Railway: Settings > Environment > Add Variable")
         return
     
+    if not PERPLEXITY_KEY:
+        logger.warning("⚠️ PERPLEXITY_API_KEY не установлен")
+        logger.warning("Бот будет использовать моковые данные вместо реальных")
+    
     logger.info("🤖 Запуск гибридного спортивного бота...")
     logger.info(f"📢 Канал: {CHANNEL_ID}")
+    logger.info(f"🔬 Perplexity API: {'✅ Подключен' if PERPLEXITY_KEY else '❌ Не настроен'}")
     
-    bot = HybridSportsBot(BOT_TOKEN, CHANNEL_ID)
+    bot = HybridSportsBot(BOT_TOKEN, CHANNEL_ID, PERPLEXITY_KEY)
     
     try:
         await bot.start_scheduler()
