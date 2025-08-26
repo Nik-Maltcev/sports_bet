@@ -1,0 +1,27 @@
+{
+  "name": "Sports Prediction Bot",
+  "description": "Telegram bot that sends professional sports predictions to a channel at scheduled times",
+  "keywords": ["telegram", "bot", "sports", "predictions", "betting", "analysis"],
+  "env": {
+    "TELEGRAM_BOT_TOKEN": {
+      "description": "Your Telegram Bot Token from @BotFather",
+      "required": true
+    },
+    "TELEGRAM_CHANNEL_ID": {
+      "description": "Your Telegram Channel ID (e.g., @your_channel or -1001234567890)",
+      "required": true
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "eco"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "stack": "heroku-22"
+}
