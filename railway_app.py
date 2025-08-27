@@ -3,7 +3,8 @@ import logging
 from aiohttp import web, ClientSession
 import os
 from datetime import datetime
-import pytz
+import p        logger.info("✅ Все сервисы запущены успешно!")
+        logger.info("📊 Бот будет отправлять прогнозы в 9:40 и 15:00 МСК")z
 import config
 from main_bot import HybridSportsBot
 
@@ -121,7 +122,7 @@ async def main():
         runner = await web_server.start_server()
         
         logger.info("✅ Все сервисы запущены успешно!")
-        logger.info("📊 Бот будет отправлять прогнозы в 9:25 и 15:00 МСК")
+        logger.info("📊 Бот будет отправлять прогнозы в 9:50 и 15:00 МСК")
         
         # Отправляем стартовое сообщение
         try:

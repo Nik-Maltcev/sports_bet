@@ -230,7 +230,7 @@ class HybridSportsBot:
             footer_message += f"⚠️ **Важно:** Играйте ответственно!\n"
             footer_message += f"💰 **Не ставьте больше, чем можете позволить**\n"
             footer_message += f"🍀 **Удачных ставок!**\n\n"
-            footer_message += f"📈 *Следующие прогнозы: завтра в 9:25 МСК*"
+            footer_message += f"📈 *Следующие прогнозы: завтра в 9:50 МСК*"
             
             await asyncio.sleep(3)
             await self.bot.send_message(
@@ -330,10 +330,10 @@ class HybridSportsBot:
     
     async def start_scheduler(self):
         """Запускает планировщик"""
-        # Основная задача в 9:25 МСК
+        # Основная задача в 9:50 МСК
         self.scheduler.add_job(
             self.send_daily_predictions,
-            CronTrigger(hour=9, minute=25, timezone=pytz.timezone('Europe/Moscow')),
+            CronTrigger(hour=9, minute=50, timezone=pytz.timezone('Europe/Moscow')),
             id='daily_predictions_morning',
             max_instances=1
         )
