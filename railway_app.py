@@ -3,8 +3,7 @@ import logging
 from aiohttp import web, ClientSession
 import os
 from datetime import datetime
-import p        logger.info("✅ Все сервисы запущены успешно!")
-        logger.info("📊 Бот будет отправлять прогнозы в 9:40 и 15:00 МСК")z
+import pytz
 import config
 from main_bot import HybridSportsBot
 
