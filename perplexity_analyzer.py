@@ -55,18 +55,24 @@ class PerplexityAPI:
                 "top_p": 0.9
             }
             
+            logger.info(f"🔍 Запрос к Perplexity API: {query[:100]}...")
+            
             async with session.post(self.base_url, json=payload) as response:
                 if response.status == 200:
                     data = await response.json()
+                    logger.info("✅ Perplexity API ответил успешно")
                     return data
                 else:
-                    logger.error(f"Perplexity API error: {response.status}")
+                    logger.error(f"❌ Perplexity API error: {response.status}")
                     error_text = await response.text()
-                    logger.error(f"Error details: {error_text}")
+                    logger.error(f"📝 Error details: {error_text}")
                     return None
                     
+        except asyncio.TimeoutError:
+            logger.error("⏰ Perplexity API timeout")
+            return None
         except Exception as e:
-            logger.error(f"Error calling Perplexity API: {e}")
+            logger.error(f"💥 Error calling Perplexity API: {e}")
             return None
     
     async def get_todays_matches(self, sport: str = "football") -> List[Dict]:

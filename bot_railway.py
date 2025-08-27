@@ -165,8 +165,19 @@ class HybridSportsBot:
         try:
             logger.info("🔄 Генерация ежедневных прогнозов...")
             
+            # Проверяем подключение к боту
+            try:
+                me = await self.bot.get_me()
+                logger.info(f"🤖 Бот подключен: @{me.username}")
+            except Exception as e:
+                logger.error(f"❌ Ошибка подключения к боту: {e}")
+                return
+            
             predictions = await self.generate_hybrid_predictions(3)
             message = self.format_enhanced_message(predictions)
+            
+            logger.info(f"📤 Отправка сообщения в канал: {self.channel_id}")
+            logger.info(f"📝 Длина сообщения: {len(message)} символов")
             
             await self.bot.send_message(
                 chat_id=self.channel_id,
@@ -182,16 +193,22 @@ class HybridSportsBot:
             
         except Exception as e:
             logger.error(f"❌ Ошибка при отправке прогнозов: {e}")
-            # Пытаемся отправить уведомление об ошибке
+            logger.error(f"💬 Канал ID: {self.channel_id}")
+            
+            # Пытаемся отправить упрощенное сообщение
             try:
-                error_message = f"🚨 **ОШИБКА БОТА**\n\nВремя: {datetime.now().strftime('%H:%M:%S')}\nОшибка: {str(e)}"
+                simple_message = f"🚨 Тестовое сообщение от Sports Bot\nВремя: {datetime.now().strftime('%H:%M:%S')}"
                 await self.bot.send_message(
                     chat_id=self.channel_id,
-                    text=error_message,
-                    parse_mode='Markdown'
+                    text=simple_message
                 )
-            except:
-                pass
+                logger.info("✅ Упрощенное сообщение отправлено")
+            except Exception as e2:
+                logger.error(f"❌ Даже упрощенное сообщение не отправилось: {e2}")
+                logger.error("🔍 Проверьте:")
+                logger.error("1. Правильность TELEGRAM_CHANNEL_ID")
+                logger.error("2. Бот добавлен в канал как администратор")
+                logger.error("3. Канал существует и доступен")
     
     async def start_scheduler(self):
         """Запускает планировщик"""
