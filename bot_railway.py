@@ -212,10 +212,10 @@ class HybridSportsBot:
     
     async def start_scheduler(self):
         """Запускает планировщик"""
-        # Основная задача в 8:50 МСК
+        # Основная задача в 9:05 МСК
         self.scheduler.add_job(
             self.send_daily_predictions,
-            CronTrigger(hour=8, minute=50, timezone=pytz.timezone('Europe/Moscow')),
+            CronTrigger(hour=9, minute=5, timezone=pytz.timezone('Europe/Moscow')),
             id='daily_predictions_morning',
             max_instances=1
         )
