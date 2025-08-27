@@ -190,10 +190,10 @@ class HybridSportsBot:
     
     async def start_scheduler(self):
         """Запускает планировщик"""
-        # Основная задача в 7:50 МСК
+        # Основная задача в 8:42 МСК
         self.scheduler.add_job(
             self.send_daily_predictions,
-            CronTrigger(hour=7, minute=50, timezone=pytz.timezone('Europe/Moscow')),
+            CronTrigger(hour=8, minute=42, timezone=pytz.timezone('Europe/Moscow')),
             id='daily_predictions_morning',
             max_instances=1
         )
@@ -208,7 +208,7 @@ class HybridSportsBot:
         
         self.scheduler.start()
         logger.info("🚀 Планировщик запущен:")
-        logger.info("⏰ Прогнозы отправляются в 7:50 и 15:00 МСК")
+        logger.info("⏰ Прогнозы отправляются в 8:42 и 15:00 МСК")
     
     async def test_send(self):
         """Тестовая отправка"""
