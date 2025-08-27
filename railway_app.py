@@ -7,10 +7,13 @@ import pytz
 import config
 from main_bot import HybridSportsBot
 
-# Настройка логирования
+# Настройка логирования для Railway
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
+    level=logging.INFO,
+    handlers=[
+        logging.StreamHandler()  # Только консольный вывод для Railway
+    ]
 )
 logger = logging.getLogger(__name__)
 
@@ -47,10 +50,12 @@ class WebServer:
                 'bot_status': 'active',
                 'bot_username': me.username,
                 'bot_name': me.first_name,
-                'scheduler_running': self.bot.scheduler.running,
-                'jobs_count': len(self.bot.scheduler.get_jobs())
+                'scheduler_running': self.bot.scheduler.running if hasattr(self.bot.scheduler, 'running') else True,
+                'jobs_count': len(self.bot.scheduler.get_jobs()) if hasattr(self.bot.scheduler, 'get_jobs') else 0,
+                'perplexity_enabled': self.bot.use_perplexity if hasattr(self.bot, 'use_perplexity') else False
             })
         except Exception as e:
+            logger.error(f"Bot status error: {e}")
             return web.json_response({
                 'bot_status': 'error',
                 'error': str(e)

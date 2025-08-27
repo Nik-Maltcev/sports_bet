@@ -20,12 +20,14 @@ class PerplexityAPI:
     async def get_session(self):
         """Получает aiohttp сессию"""
         if not self.session:
+            timeout = aiohttp.ClientTimeout(total=30)  # 30 секунд таймаут
             self.session = aiohttp.ClientSession(
                 headers={
                     "Authorization": f"Bearer {self.api_key}",
                     "Content-Type": "application/json",
                     "Accept": "application/json"
-                }
+                },
+                timeout=timeout
             )
         return self.session
     

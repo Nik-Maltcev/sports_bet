@@ -11,13 +11,11 @@ from sports_bot import SportsAnalyzer
 from perplexity_analyzer import EnhancedSportsAnalyzer
 import random
 
-# Настройка логирования
+# Настройка логирования только для консоли (Railway-friendly)
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO,
-    handlers=[
-        logging.StreamHandler()  # Только вывод в консоль для Railway
-    ]
+    force=True  # Принудительно переопределяем конфигурацию
 )
 logger = logging.getLogger(__name__)
 
@@ -50,7 +48,7 @@ class HybridSportsBot:
         
         message = f"🏆 **ЭКСПЕРТНЫЕ СПОРТИВНЫЕ ПРОГНОЗЫ** 🏆\n"
         message += f"📅 **{date_str}** | 🕘 **{current_time.strftime('%H:%M')} МСК**\n\n"
-        message += "🔬 *Профессиональный анализ с использованием статистики*\n"
+        message += "🔬 *Профессиональный анализ с использованием ИИ*\n"
         message += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
         
         sport_emojis = {
@@ -109,10 +107,17 @@ class HybridSportsBot:
                 message += "\n" + "─" * 35 + "\n\n"
         
         message += "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        
+        # Добавляем информацию об источнике данных
+        if self.use_perplexity:
+            message += "🤖 **Источник:** Perplexity AI + Экспертный анализ\n"
+        else:
+            message += "🤖 **Источник:** Алгоритмический анализ\n"
+            
         message += "📊 **Статистика точности:** 78% за последний месяц\n"
         message += "⚠️ **Важно:** Ставки связаны с рисками. Играйте ответственно!\n"
         message += "🍀 **Удачных ставок!**\n\n"
-        message += f"🤖 Прогнозы сгенерированы: {current_time.strftime('%H:%M')} МСК"
+        message += f"🕐 Сгенерировано: {current_time.strftime('%H:%M')} МСК"
         
         return message
     
@@ -230,7 +235,6 @@ async def main():
     if not BOT_TOKEN or not CHANNEL_ID:
         logger.error("❌ Не установлены переменные окружения!")
         logger.error("Установите TELEGRAM_BOT_TOKEN и TELEGRAM_CHANNEL_ID")
-        logger.error("В Railway: Settings > Environment > Add Variable")
         return
     
     if not PERPLEXITY_KEY:
