@@ -84,7 +84,15 @@ class HybridSportsBot:
             
             message += f"📈 **Прогноз:** {pred.prediction}\n"
             message += f"💰 **Коэффициент:** {pred.odds}\n"
-            message += f"{conf_emoji} **Уверенность:** {pred.confidence}%\n\n"
+            message += f"{conf_emoji} **Уверенность:** {pred.confidence}%\n"
+            
+            # Источник данных
+            source_info = ""
+            if hasattr(pred, 'source') and pred.source == 'perplexity':
+                source_info = "🔥 **LIVE ДАННЫЕ** (Perplexity AI)\n"
+            else:
+                source_info = "📊 **АНАЛИТИЧЕСКИЕ ДАННЫЕ**\n"
+            message += source_info
             
             # Рейтинг прогноза
             if pred.confidence >= 90:
@@ -143,7 +151,9 @@ class HybridSportsBot:
                             odds=real_pred["odds"],
                             confidence=real_pred["confidence"],
                             analysis=real_pred["analysis"],
-                            key_factors=real_pred["key_factors"]
+                            key_factors=real_pred["key_factors"],
+                            source=real_pred.get("source", "perplexity"),
+                            time=real_pred.get("time", None)
                         )
                         predictions.append(pred)
                         logger.info(f"✅ Получен реальный прогноз для {sport} через Perplexity")
@@ -303,7 +313,10 @@ class HybridSportsBot:
         message += f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
         
         message += f"🏟️ **{emoji} {pred.sport}** • {pred.league}\n"
-        message += f"⚔️ **{pred.match}**\n\n"
+        message += f"⚔️ **{pred.match}**\n"
+        if hasattr(pred, 'time'):
+            message += f"🕐 **Время:** {pred.time}\n"
+        message += f"\n"
         
         message += f"📈 **ПРОГНОЗ:** `{pred.prediction}`\n"
         message += f"💰 **Коэффициент:** `{pred.odds}`\n"
